@@ -1,0 +1,25 @@
+<div>
+  <input-speach-enabled
+    [focusin]="tabData[0]"
+    (focusoutCustom)="focusout($event)"
+  ></input-speach-enabled>
+</div>
+<div style="margin-top: 20px">
+  <input-speach-enabled
+    [focusin]="tabData[1]"
+    (focusoutCustom)="focusout($event)"
+  ></input-speach-enabled>
+</div>
+
+<div style="margin-top: 20px">
+  <button-speach-enabled
+    [focusin]="tabData[2]"
+    (focusoutCustom)="focusout($event)"
+    (functionExecuteCustom)="executeFunction($event)"
+  ></button-speach-enabled>
+</div>
+
+<!-- functionExecuteCustom -->
+<!-- <button (click)="test()">click</button> -->
+
+<!-- <button (click)="stop()">stop</button> -->

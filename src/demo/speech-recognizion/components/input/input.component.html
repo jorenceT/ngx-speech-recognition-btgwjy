@@ -1,0 +1,19 @@
+Last Command executed: {{ command }}
+<div class="app-speech-input">
+  <input #inputControl [type]="type" [value]="message" />
+  <!-- <input type="text" [value]="message" /> -->
+  <!-- <span class="app-speech-input-btn" (click)="listen()"></span> -->
+  <!-- <span class="app-mute-input-btn" (click)="listen()"></span> -->
+  <span
+    [ngClass]="listerning ? 'app-speech-input-btn' : 'app-mute-input-btn'"
+    (click)="listen()"
+  ></span>
+  <!-- <img
+    class="app-mute-input-btn"
+    src="https://cdn-icons-png.flaticon.com/512/59/59120.png"
+  /> -->
+</div>
+
+<!-- class="app-speech-input-btn" -->
+<!-- class="app-mute-input-btn" -->
+<!-- [ngClass]="listening ? 'app-speech-input-btn' : 'app-mute-input-btn'" -->
