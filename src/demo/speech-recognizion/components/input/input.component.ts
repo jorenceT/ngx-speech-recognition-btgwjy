@@ -70,29 +70,14 @@ export class InputComponent {
     };
     this.service.onresult = (e) => {
       console.log('onresult');
-      this.message = e.results[0].item(0).transcript;
-      this.MessageHandler(this.message);
-      this.start('onresult');
-      // console.log('SubComponent:onresult', this.message, e);
+      var message = e.results[0].item(0).transcript;
+      this.MessageHandler(message);
+      this.ref.detectChanges();
     };
     this.service.onend = (e) => {
       console.log('onend');
       this.listerning = false;
       this.ref.detectChanges();
-    };
-    this.service.onspeechend = (e) => {
-      console.log('on speach end');
-    };
-
-    this.service.onaudioend = (e) => {
-      console.log('onaudioend end');
-    };
-    this.service.onnomatch = (e) => {
-      console.log('onnomatch');
-    };
-
-    this.service.onsoundend = (e) => {
-      console.log('onsoundend');
     };
   }
 
@@ -131,19 +116,18 @@ export class InputComponent {
     if (this.commentHandler(['clear', 'delte', 'erase'], false)) {
       this.message = '';
       this.command = 'clear';
-    }
-    if (this.commentHandler(['tabout', 'next', 'tab', 'tap', 'out'])) {
+    } else if (this.commentHandler(['tabout', 'next', 'tab', 'tap', 'out'])) {
       console.log('tabout');
-      this.service.stop();
+      stop();
       this.focusoutCustom.emit(this.tabIndex);
       this.command = 'tabout';
-    }
-    if (this.commentHandler(['stop', 'abourt'])) {
+    } else if (this.commentHandler(['stop', 'abourt'])) {
       console.log('stop');
-      this.service.stop();
+      stop();
       this.command = 'stop';
+    } else {
+      this.message = message;
     }
-    this.ref.detectChanges();
   }
 
   commentHandler(list: string[], proccessMessage = true): boolean {
