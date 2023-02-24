@@ -13,6 +13,7 @@ import { inputType, TabData } from '../Interface/tab-data-model';
 @Component({
   selector: 'main-page',
   templateUrl: './main-page.component.html',
+  styleUrls: ['./main-page.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     // Dependency Inject to SpeechRecognitionService
@@ -79,7 +80,7 @@ export class MainPageComponent {
   executeFunction(event: string) {
     console.log('execute function');
     if (event == 'stop') {
-      this.stop();
+      this.stopButtom();
     }
   }
 
@@ -90,7 +91,8 @@ export class MainPageComponent {
     this.currentActiveField = index;
     this.ref.detectChanges();
   }
-  stop() {
+  // TODO// do we need this insted cant we do it to simple stop service?, need to check the listerning getting off in the listering input if we remove this
+  stopButtom() {
     console.log('stop executed');
     this.tabData[this.currentActiveField].active = false;
     this.tabData[this.currentActiveField] = {
@@ -98,13 +100,40 @@ export class MainPageComponent {
     };
   }
 
-  listen() {}
+  listen() {
+    if (this.listerning) {
+      this.stopListerning();
+    } else {
+      this.start('listern');
+    }
+  }
 
+  start(calledFrom: string) {
+    if (!this.listerning) {
+      this.listerning = true;
+      console.log('listerning started ' + calledFrom);
+      this.service.start();
+    } else {
+      console.log('listerning cant started ' + calledFrom);
+    }
+  }
+
+  stopListerning() {
+    if (this.listerning) {
+      this.listerning = false;
+      console.log('listerning stoped');
+      this.service.abort();
+    } else {
+      console.log('listerning cant stop');
+    }
+  }
+
+  //TODO: maybe we can move this to a factory
   private MessageHandler(message: string) {
     if (this.commentHandler(['stop button'], false)) {
       this.executeFunction('stop');
     } else if (this.commentHandler(['stop'])) {
-      stop();
+      this.stopListerning();
     } else if (this.commentHandler(['focus Field'])) {
       let trimedMessage = message.trim();
       let parsed = parseInt(trimedMessage, 10);
@@ -115,6 +144,7 @@ export class MainPageComponent {
     }
   }
 
+  //TODO: maybe we can move this to a helper class
   commentHandler(list: string[], proccessMessage = true): boolean {
     let result = false;
     list.forEach((commandName) => {
