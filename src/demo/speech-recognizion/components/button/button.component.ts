@@ -118,13 +118,13 @@ export class ButtonComponent {
     }
     if (this.commentHandler(message, ['tabout', 'next', 'tab', 'tap'])) {
       console.log('tabout');
-      this.service.stop();
+      stop();
       this.focusoutCustom.emit(this.tabIndex);
       this.command = 'tabout';
     }
     if (this.commentHandler(message, ['stop', 'abourt'])) {
       console.log('stop');
-      this.service.stop();
+      stop();
       this.command = 'stop';
     }
     this.ref.detectChanges();
