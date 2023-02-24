@@ -113,7 +113,7 @@ export class InputComponent {
   clearMessage() {}
 
   private MessageHandler(message: string) {
-    if (this.commentHandler(['clear', 'delte', 'erase'], false)) {
+    if (this.commentHandler(['clear', 'delte', 'erase'])) {
       this.message = '';
       this.command = 'clear';
     } else if (this.commentHandler(['tabout', 'next', 'tab', 'tap', 'out'])) {
@@ -130,13 +130,10 @@ export class InputComponent {
     }
   }
 
-  commentHandler(list: string[], proccessMessage = true): boolean {
+  commentHandler(list: string[]): boolean {
     let result = false;
     list.forEach((commandName) => {
       if (this.message.includes(commandName)) {
-        if (proccessMessage) {
-          this.message = this.message.replace(commandName, '');
-        }
         result = true;
       }
     });

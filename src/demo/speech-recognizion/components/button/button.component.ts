@@ -70,7 +70,6 @@ export class ButtonComponent {
       var message = e.results[0].item(0).transcript;
       this.MessageHandler(message);
       this.start('onresult');
-      // console.log('SubComponent:onresult', this.message, e);
     };
   }
 
