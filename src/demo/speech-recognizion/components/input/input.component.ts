@@ -18,10 +18,6 @@ import { commentHandler } from '../base/helper-class';
   templateUrl: './input.component.html',
   styleUrls: ['./input.component.css'],
   providers: [
-    // Dependency Inject to SpeechRecognitionService
-    // like this.
-    //
-    // こんな感じで依存解決できます。
     {
       provide: SpeechRecognitionLang,
       useValue: 'en-US',
@@ -45,8 +41,6 @@ export class InputComponent extends ControlerBase {
     super(serviceInt, refInt);
   }
 
-  clearMessage() {}
-
   protected messageHandler(message: string) {
     if (commentHandler(['clear', 'delte', 'erase'], message)) {
       this.message = '';
@@ -54,12 +48,10 @@ export class InputComponent extends ControlerBase {
     } else if (
       commentHandler(['tabout', 'next', 'tab', 'tap', 'out'], message)
     ) {
-      console.log('tabout');
       stop();
       this.focusoutCustom.emit(this.tabIndex);
       this.command = 'tabout';
     } else if (commentHandler(['stop', 'abort'], message)) {
-      console.log('stop');
       stop();
       this.command = 'stop';
     } else {
