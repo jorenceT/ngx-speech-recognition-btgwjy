@@ -10,7 +10,8 @@ import {
   SpeechRecognitionMaxAlternatives,
   SpeechRecognitionService,
 } from '../../../../../projects/ngx-speech-recognition/src/public_api';
-import { TabData } from '../Interface/tab-data-model';
+import { ControlerBase } from '../base/controler-base';
+import { commentHandler } from '../base/helper-class';
 
 @Component({
   selector: 'input-speach-enabled',
@@ -33,110 +34,36 @@ import { TabData } from '../Interface/tab-data-model';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InputComponent {
+export class InputComponent extends ControlerBase {
   public message = '';
-  public listerning = false;
-  public tabIndex = null;
   public command = 'command';
-  public type = 'text';
-
-  @Input() set focusin(data: TabData) {
-    console.log('came into input ' + data?.index);
-    this.type = data.type;
-    if (data.active) {
-      console.log('activated');
-      this.inputRef.nativeElement.focus();
-      this.start('from input');
-    } else {
-      if (this.listerning) {
-        this.stop();
-      }
-    }
-    this.tabIndex = data.index;
-    this.ref.detectChanges();
-  }
-
-  @ViewChild('inputControl') inputRef: ElementRef;
-
-  @Output() focusoutCustom = new EventEmitter<string>();
 
   constructor(
-    private service: SpeechRecognitionService,
-    private ref: ChangeDetectorRef
+    private serviceInt: SpeechRecognitionService,
+    private refInt: ChangeDetectorRef
   ) {
-    this.service.continuous = true;
-    this.service.onstart = (e) => {
-      console.log('onstart');
-    };
-    this.service.onresult = (e) => {
-      console.log('onresult');
-      var message = e.results[0].item(0).transcript;
-      this.MessageHandler(message);
-      this.ref.detectChanges();
-    };
-    this.service.onend = (e) => {
-      console.log('onend');
-      this.listerning = false;
-      this.ref.detectChanges();
-    };
-  }
-
-  listen() {
-    this.inputRef.nativeElement.focus();
-    if (this.listerning) {
-      this.stop();
-    } else {
-      this.start('listern');
-    }
-  }
-
-  start(calledFrom: string) {
-    if (!this.listerning) {
-      this.listerning = true;
-      console.log('listerning started ' + calledFrom);
-      this.service.start();
-    } else {
-      console.log('listerning cant started ' + calledFrom);
-    }
-  }
-
-  stop() {
-    if (this.listerning) {
-      this.listerning = false;
-      console.log('listerning stoped');
-      this.service.abort();
-    } else {
-      console.log('listerning cant stop');
-    }
+    super(serviceInt, refInt);
   }
 
   clearMessage() {}
 
-  private MessageHandler(message: string) {
-    if (this.commentHandler(['clear', 'delte', 'erase'])) {
+  protected messageHandler(message: string) {
+    if (commentHandler(['clear', 'delte', 'erase'], message)) {
       this.message = '';
       this.command = 'clear';
-    } else if (this.commentHandler(['tabout', 'next', 'tab', 'tap', 'out'])) {
+    } else if (
+      commentHandler(['tabout', 'next', 'tab', 'tap', 'out'], message)
+    ) {
       console.log('tabout');
       stop();
       this.focusoutCustom.emit(this.tabIndex);
       this.command = 'tabout';
-    } else if (this.commentHandler(['stop', 'abourt'])) {
+    } else if (commentHandler(['stop', 'abort'], message)) {
       console.log('stop');
       stop();
       this.command = 'stop';
     } else {
       this.message = message;
     }
-  }
-
-  commentHandler(list: string[]): boolean {
-    let result = false;
-    list.forEach((commandName) => {
-      if (this.message.includes(commandName)) {
-        result = true;
-      }
-    });
-    return result;
   }
 }
