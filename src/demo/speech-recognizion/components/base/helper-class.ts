@@ -10,7 +10,7 @@ export function commentHandler(list: string[], message): boolean {
 }
 
 export function parseNumericTextToNumber(message: string) {
-  var removeComment = message.replace('focus', '');
+  let removeComment = message.replace('focus', '');
   let trimedMessage = removeComment.trim();
   let convertedToNumber = convertNumberText(trimedMessage);
   let parsed = parseInt(convertedToNumber, 10);

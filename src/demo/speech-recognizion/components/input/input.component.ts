@@ -52,7 +52,9 @@ export class InputComponent extends ControlerBase {
       this.message = '';
       this.command = 'clear';
     } else {
+      this.indexOfCorrectData = this.currentDataIndex;
       this.message = message;
+      console.log(this.indexOfCorrectData);
     }
   }
 }

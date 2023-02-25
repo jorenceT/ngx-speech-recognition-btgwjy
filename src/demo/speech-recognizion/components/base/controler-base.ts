@@ -16,6 +16,8 @@ export abstract class ControlerBase {
   public listerning = false;
   public type = 'text';
   public message = '';
+  public currentDataIndex = 0;
+  public indexOfCorrectData = 0;
 
   @Input() set focusin(data: TabData) {
     this.name = data.name;
@@ -44,8 +46,8 @@ export abstract class ControlerBase {
   ) {
     this.service.continuous = true;
     this.service.onresult = (e) => {
-      var message = e.results[e.results.length - 1].item(0).transcript;
-      console.log(message);
+      this.currentDataIndex = e.results.length - 1;
+      var message = e.results[this.currentDataIndex].item(0).transcript;
       this.messageHandler(message, e);
       this.ref.detectChanges();
     };
@@ -55,13 +57,13 @@ export abstract class ControlerBase {
     };
   }
 
-  // clearGlobalCommand(e) {
-  //   if (e.results.length >= 2) {
-  //     this.message = e.results[e.results.length - 2].item(0).transcript;
-  //   } else {
-  //     this.message = '';
-  //   }
-  // }
+  clearGlobalCommandTextFromField(e) {
+    if (e.results.length >= 2) {
+      this.message = e.results[this.indexOfCorrectData].item(0).transcript;
+    } else {
+      this.message = '';
+    }
+  }
 
   listen() {
     this.controlRef?.nativeElement?.focus();
@@ -92,7 +94,7 @@ export abstract class ControlerBase {
       for (const key in GLOBAL_COMMAND) {
         GLOBAL_COMMAND[key].forEach((value) => {
           if (message.includes(value)) {
-            // this.clearGlobalCommand(e);
+            this.clearGlobalCommandTextFromField(e);
             this.executeGlobalCommand.emit(message);
             result = true;
           }
@@ -102,6 +104,7 @@ export abstract class ControlerBase {
     return result;
   }
   messageHandler(message: string, e) {
+    console.log(this.globalMessageHandler(message, e) + message);
     if (
       !this.globalMessageHandler(message, e) &&
       !this.commonCommandHandler(message)

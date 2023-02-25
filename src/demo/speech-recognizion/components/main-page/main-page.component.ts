@@ -88,7 +88,6 @@ export class MainPageComponent extends ControlerBase {
   }
 
   protected localCommandHandler(message: string) {
-    console.log(message);
     if (commentHandler(GLOBAL_COMMAND.stopButton, message)) {
       this.executeFunction('stop');
     } else if (commentHandler(GLOBAL_COMMAND.focus, message)) {
