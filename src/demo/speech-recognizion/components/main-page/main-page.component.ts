@@ -8,6 +8,8 @@ import {
   SpeechRecognitionMaxAlternatives,
   SpeechRecognitionService,
 } from '../../../../../projects/ngx-speech-recognition/src/public_api';
+import { ControlerBase } from '../base/controler-base';
+import { commentHandler, parseNumericTextToNumber } from '../base/helper-class';
 import { inputType, TabData } from '../Interface/tab-data-model';
 
 @Component({
@@ -16,10 +18,6 @@ import { inputType, TabData } from '../Interface/tab-data-model';
   styleUrls: ['./main-page.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    // Dependency Inject to SpeechRecognitionService
-    // like this.
-    //
-    // こんな感じで依存解決できます。
     {
       provide: SpeechRecognitionLang,
       useValue: 'en-US',
@@ -31,26 +29,12 @@ import { inputType, TabData } from '../Interface/tab-data-model';
     SpeechRecognitionService,
   ],
 })
-export class MainPageComponent {
+export class MainPageComponent extends ControlerBase {
   constructor(
-    private service: SpeechRecognitionService,
-    private ref: ChangeDetectorRef
+    private serviceInit: SpeechRecognitionService,
+    private refInit: ChangeDetectorRef
   ) {
-    this.service.continuous = true;
-    this.service.onstart = (e) => {
-      console.log('onstart');
-    };
-    this.service.onresult = (e) => {
-      console.log('onresult');
-      var message = e.results[0].item(0).transcript;
-      this.MessageHandler(message);
-      this.ref.detectChanges();
-    };
-    this.service.onend = (e) => {
-      console.log('onend');
-      this.listerning = false;
-      this.ref.detectChanges();
-    };
+    super(serviceInit, refInit);
   }
   message = '';
   command = '';
@@ -59,12 +43,10 @@ export class MainPageComponent {
     { index: 1, active: false, type: inputType.text },
     { index: 2, active: false, type: inputType.button, name: 'stop' },
   ];
-  listerning = false;
 
   currentActiveField = 0;
 
   focusout(index: number) {
-    console.log('tabout triggered' + index + this.tabData.length);
     index = index + 1;
     if (index < this.tabData.length) {
       this.focusInInput(index);
@@ -73,19 +55,17 @@ export class MainPageComponent {
     }
   }
 
-  test() {
-    this.focusout(1);
-  }
-
   executeFunction(event: string) {
-    console.log('execute function');
     if (event == 'stop') {
       this.stopButtom();
     }
   }
 
+  test() {
+    this.focusInInput(1);
+  }
+
   focusInInput(index: number) {
-    console.log('setting next field');
     this.tabData[index].active = true;
     this.tabData[index] = { ...this.tabData[index] };
     this.currentActiveField = index;
@@ -93,68 +73,26 @@ export class MainPageComponent {
   }
   // TODO// do we need this insted cant we do it to simple stop service?, need to check the listerning getting off in the listering input if we remove this
   stopButtom() {
-    console.log('stop executed');
     this.tabData[this.currentActiveField].active = false;
     this.tabData[this.currentActiveField] = {
       ...this.tabData[this.currentActiveField],
     };
   }
 
-  listen() {
-    if (this.listerning) {
-      this.stopListerning();
-    } else {
-      this.start('listern');
-    }
-  }
-
-  start(calledFrom: string) {
-    if (!this.listerning) {
-      this.listerning = true;
-      console.log('listerning started ' + calledFrom);
-      this.service.start();
-    } else {
-      console.log('listerning cant started ' + calledFrom);
-    }
-  }
-
-  stopListerning() {
-    if (this.listerning) {
-      this.listerning = false;
-      console.log('listerning stoped');
-      this.service.abort();
-    } else {
-      console.log('listerning cant stop');
-    }
-  }
-
-  //TODO: maybe we can move this to a factory
-  private MessageHandler(message: string) {
-    if (this.commentHandler(['stop button'], false)) {
+  protected messageHandler(message: string) {
+    console.log(message);
+    if (commentHandler(['stop button'], message)) {
       this.executeFunction('stop');
-    } else if (this.commentHandler(['stop'])) {
-      this.stopListerning();
-    } else if (this.commentHandler(['focus Field'])) {
-      let trimedMessage = message.trim();
-      let parsed = parseInt(trimedMessage, 10);
-      if (isNaN(parsed)) {
-        return;
+    } else if (commentHandler(['stop'], message)) {
+      this.stop();
+    } else if (commentHandler(['focus', 'select'], message)) {
+      let processedMessage: number = parseNumericTextToNumber(message);
+      if (
+        processedMessage != undefined &&
+        processedMessage < this.tabData.length
+      ) {
+        this.focusInInput(processedMessage);
       }
-      this.focusout(parsed);
     }
-  }
-
-  //TODO: maybe we can move this to a helper class
-  commentHandler(list: string[], proccessMessage = true): boolean {
-    let result = false;
-    list.forEach((commandName) => {
-      if (this.message.includes(commandName)) {
-        if (proccessMessage) {
-          this.message = this.message.replace(commandName, '');
-        }
-        result = true;
-      }
-    });
-    return result;
   }
 }

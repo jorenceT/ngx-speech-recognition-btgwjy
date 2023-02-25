@@ -18,10 +18,6 @@ import { commentHandler } from '../base/helper-class';
   templateUrl: './button.component.html',
   styleUrls: ['./button.component.css'],
   providers: [
-    // Dependency Inject to SpeechRecognitionService
-    // like this.
-    //
-    // こんな感じで依存解決できます。
     {
       provide: SpeechRecognitionLang,
       useValue: 'en-US',
@@ -47,7 +43,6 @@ export class ButtonComponent extends ControlerBase {
   test() {
     this.controlRef.nativeElement.focus();
   }
-  clearMessage() {}
 
   executeFunction() {
     this.functionExecuteCustom.emit(this.name);
@@ -58,13 +53,11 @@ export class ButtonComponent extends ControlerBase {
       this.functionExecuteCustom.emit(this.name);
     }
     if (commentHandler(['tabout', 'next', 'tab', 'tap'], message)) {
-      console.log('tabout');
       stop();
       this.focusoutCustom.emit(this.tabIndex);
       this.command = 'tabout';
     }
     if (commentHandler(['stop', 'abourt'], message)) {
-      console.log('stop');
       stop();
       this.command = 'stop';
     }

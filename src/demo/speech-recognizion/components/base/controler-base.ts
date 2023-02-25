@@ -14,6 +14,7 @@ export abstract class ControlerBase {
   public name = '';
   public listerning = false;
   public type = 'text';
+
   @Input() set focusin(data: TabData) {
     console.log('came into input ' + data?.index);
     this.name = data.name;
@@ -41,24 +42,27 @@ export abstract class ControlerBase {
     protected ref: ChangeDetectorRef
   ) {
     this.service.continuous = true;
-    this.service.onstart = (e) => {
-      console.log('onstart');
-    };
+    // this.service.onstart = (e) => {
+    //   console.log('onstart');
+    // };
+    const timeout = setInterval(() => {
+      // location.reload();
+    }, 10000);
     this.service.onresult = (e) => {
-      console.log('onresult');
-      var message = e.results[0].item(0).transcript;
+      clearTimeout(timeout);
+      var message = e.results[e.results.length - 1].item(0).transcript;
       this.messageHandler(message);
+      console.log(e);
       this.ref.detectChanges();
     };
     this.service.onend = (e) => {
-      console.log('onend');
       this.listerning = false;
       this.ref.detectChanges();
     };
   }
 
   listen() {
-    this.controlRef.nativeElement.focus();
+    this.controlRef?.nativeElement?.focus();
     if (this.listerning) {
       this.stop();
     } else {
