@@ -2,12 +2,14 @@
   <input-speach-enabled
     [focusin]="tabData[0]"
     (focusoutCustom)="focusout($event)"
+    (executeGlobalCommand)="executingGlobalCommand($event)"
   ></input-speach-enabled>
 </div>
 <div style="margin-top: 20px">
   <input-speach-enabled
     [focusin]="tabData[1]"
     (focusoutCustom)="focusout($event)"
+    (executeGlobalCommand)="executingGlobalCommand($event)"
   ></input-speach-enabled>
 </div>
 
@@ -16,6 +18,7 @@
     [focusin]="tabData[2]"
     (focusoutCustom)="focusout($event)"
     (functionExecuteCustom)="executeFunction($event)"
+    (executeGlobalCommand)="executingGlobalCommand($event)"
   ></button-speach-enabled>
 </div>
 <span

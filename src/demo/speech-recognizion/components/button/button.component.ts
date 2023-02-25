@@ -40,26 +40,17 @@ export class ButtonComponent extends ControlerBase {
     super(serviceInt, refInt);
   }
 
-  test() {
-    this.controlRef.nativeElement.focus();
-  }
+  // test() {
+  //   this.globalMessageHandler('focus one');
+  // }
 
   executeFunction() {
     this.functionExecuteCustom.emit(this.name);
   }
 
-  protected messageHandler(message: string): void {
+  protected localCommandHandler(message: string): void {
     if (commentHandler(['Click'], message)) {
       this.functionExecuteCustom.emit(this.name);
-    }
-    if (commentHandler(['tabout', 'next', 'tab', 'tap'], message)) {
-      stop();
-      this.focusoutCustom.emit(this.tabIndex);
-      this.command = 'tabout';
-    }
-    if (commentHandler(['stop', 'abourt'], message)) {
-      stop();
-      this.command = 'stop';
     }
     this.ref.detectChanges();
   }

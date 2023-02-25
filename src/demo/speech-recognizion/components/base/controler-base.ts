@@ -8,21 +8,21 @@ import {
 } from '@angular/core';
 import { SpeechRecognitionService } from '../../../../../projects/ngx-speech-recognition/src/public_api';
 import { TabData } from '../Interface/tab-data-model';
+import { commentHandler, GLOBAL_COMMAND } from './helper-class';
 
 export abstract class ControlerBase {
   public tabIndex = null;
   public name = '';
   public listerning = false;
   public type = 'text';
+  public message = '';
 
   @Input() set focusin(data: TabData) {
-    console.log('came into input ' + data?.index);
     this.name = data.name;
     this.type = data.type;
     if (data.active) {
-      console.log('activated');
       this.controlRef.nativeElement.focus();
-      this.start('from input');
+      this.start();
     } else {
       if (this.listerning) {
         this.stop();
@@ -34,25 +34,19 @@ export abstract class ControlerBase {
 
   @ViewChild('control') controlRef: ElementRef;
 
-  @Output() focusoutCustom = new EventEmitter<string>();
+  @Output() focusoutCustom = new EventEmitter<number>();
   @Output() functionExecuteCustom = new EventEmitter<string>();
+  @Output() executeGlobalCommand = new EventEmitter<string>();
 
   constructor(
     protected service: SpeechRecognitionService,
     protected ref: ChangeDetectorRef
   ) {
     this.service.continuous = true;
-    // this.service.onstart = (e) => {
-    //   console.log('onstart');
-    // };
-    const timeout = setInterval(() => {
-      // location.reload();
-    }, 10000);
     this.service.onresult = (e) => {
-      clearTimeout(timeout);
       var message = e.results[e.results.length - 1].item(0).transcript;
-      this.messageHandler(message);
-      console.log(e);
+      console.log(message);
+      this.messageHandler(message, e);
       this.ref.detectChanges();
     };
     this.service.onend = (e) => {
@@ -61,34 +55,73 @@ export abstract class ControlerBase {
     };
   }
 
+  // clearGlobalCommand(e) {
+  //   if (e.results.length >= 2) {
+  //     this.message = e.results[e.results.length - 2].item(0).transcript;
+  //   } else {
+  //     this.message = '';
+  //   }
+  // }
+
   listen() {
     this.controlRef?.nativeElement?.focus();
     if (this.listerning) {
       this.stop();
     } else {
-      this.start('listern');
+      this.start();
     }
   }
 
-  start(calledFrom: string) {
+  start() {
     if (!this.listerning) {
       this.listerning = true;
-      console.log('listerning started ' + calledFrom);
       this.service.start();
-    } else {
-      console.log('listerning cant started ' + calledFrom);
     }
   }
 
   stop() {
     if (this.listerning) {
       this.listerning = false;
-      console.log('listerning stoped');
       this.service.abort();
-    } else {
-      console.log('listerning cant stop');
     }
   }
 
-  protected abstract messageHandler(message: string): void;
+  globalMessageHandler(message, e): boolean {
+    var result = false;
+    if (message) {
+      for (const key in GLOBAL_COMMAND) {
+        GLOBAL_COMMAND[key].forEach((value) => {
+          if (message.includes(value)) {
+            // this.clearGlobalCommand(e);
+            this.executeGlobalCommand.emit(message);
+            result = true;
+          }
+        });
+      }
+    }
+    return result;
+  }
+  messageHandler(message: string, e) {
+    if (
+      !this.globalMessageHandler(message, e) &&
+      !this.commonCommandHandler(message)
+    ) {
+      this.localCommandHandler(message);
+    }
+  }
+  commonCommandHandler(message: string): boolean {
+    if (commentHandler(['tabout', 'next', 'tab', 'out'], message)) {
+      stop();
+      this.focusoutCustom.emit(this.tabIndex + 1);
+      return true;
+    } else if (commentHandler(['stop', 'abort'], message)) {
+      stop();
+      return true;
+    } else if (commentHandler(['previous', 'shift tab'], message)) {
+      this.focusoutCustom.emit(this.tabIndex - 1);
+      return true;
+    }
+    return false;
+  }
+  protected abstract localCommandHandler(message: string): void;
 }

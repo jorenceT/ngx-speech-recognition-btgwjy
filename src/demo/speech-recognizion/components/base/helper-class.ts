@@ -1,6 +1,7 @@
 export function commentHandler(list: string[], message): boolean {
   let result = false;
   list.forEach((commandName) => {
+    message = wordCorrection(message);
     if (message.includes(commandName)) {
       result = true;
     }
@@ -37,7 +38,7 @@ function convertNumberText(message: string) {
   messageToArray.forEach((word) => {
     word = word.trim();
     word = word.toLowerCase();
-    let correctedWord = WORD_CORRECTION_LIST[word] ?? word;
+    let correctedWord = wordCorrection(word);
     if (word && NUMERIC_TEXT_TO_NUMBER_MAP[correctedWord]) {
       numbers = numbers + NUMERIC_TEXT_TO_NUMBER_MAP[correctedWord];
     }
@@ -45,6 +46,16 @@ function convertNumberText(message: string) {
   return numbers;
 }
 
+export function wordCorrection(word) {
+  return WORD_CORRECTION_LIST[word] ?? word;
+}
+
 const WORD_CORRECTION_LIST = {
   ['hero']: 'zero',
+  ['tap']: 'tab',
+};
+
+export const GLOBAL_COMMAND = {
+  stopButton: ['stop button'],
+  focus: ['focus', 'select'],
 };
