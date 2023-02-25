@@ -3,21 +3,63 @@ import {
   ChangeDetectorRef,
   Component,
 } from '@angular/core';
+import {
+  SpeechRecognitionLang,
+  SpeechRecognitionMaxAlternatives,
+  SpeechRecognitionService,
+} from '../../../../../projects/ngx-speech-recognition/src/public_api';
 import { inputType, TabData } from '../Interface/tab-data-model';
 
 @Component({
   selector: 'main-page',
   templateUrl: './main-page.component.html',
+  styleUrls: ['./main-page.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    // Dependency Inject to SpeechRecognitionService
+    // like this.
+    //
+    // こんな感じで依存解決できます。
+    {
+      provide: SpeechRecognitionLang,
+      useValue: 'en-US',
+    },
+    {
+      provide: SpeechRecognitionMaxAlternatives,
+      useValue: 1,
+    },
+    SpeechRecognitionService,
+  ],
 })
 export class MainPageComponent {
-  constructor(private ref: ChangeDetectorRef) {}
-
+  constructor(
+    private service: SpeechRecognitionService,
+    private ref: ChangeDetectorRef
+  ) {
+    this.service.continuous = true;
+    this.service.onstart = (e) => {
+      console.log('onstart');
+    };
+    this.service.onresult = (e) => {
+      console.log('onresult');
+      var message = e.results[0].item(0).transcript;
+      this.MessageHandler(message);
+      this.ref.detectChanges();
+    };
+    this.service.onend = (e) => {
+      console.log('onend');
+      this.listerning = false;
+      this.ref.detectChanges();
+    };
+  }
+  message = '';
+  command = '';
   tabData: TabData[] = [
     { index: 0, active: false, type: inputType.text },
     { index: 1, active: false, type: inputType.text },
     { index: 2, active: false, type: inputType.button, name: 'stop' },
   ];
+  listerning = false;
 
   currentActiveField = 0;
 
@@ -38,7 +80,7 @@ export class MainPageComponent {
   executeFunction(event: string) {
     console.log('execute function');
     if (event == 'stop') {
-      this.stop();
+      this.stopButtom();
     }
   }
 
@@ -49,11 +91,70 @@ export class MainPageComponent {
     this.currentActiveField = index;
     this.ref.detectChanges();
   }
-  stop() {
+  // TODO// do we need this insted cant we do it to simple stop service?, need to check the listerning getting off in the listering input if we remove this
+  stopButtom() {
     console.log('stop executed');
     this.tabData[this.currentActiveField].active = false;
     this.tabData[this.currentActiveField] = {
       ...this.tabData[this.currentActiveField],
     };
+  }
+
+  listen() {
+    if (this.listerning) {
+      this.stopListerning();
+    } else {
+      this.start('listern');
+    }
+  }
+
+  start(calledFrom: string) {
+    if (!this.listerning) {
+      this.listerning = true;
+      console.log('listerning started ' + calledFrom);
+      this.service.start();
+    } else {
+      console.log('listerning cant started ' + calledFrom);
+    }
+  }
+
+  stopListerning() {
+    if (this.listerning) {
+      this.listerning = false;
+      console.log('listerning stoped');
+      this.service.abort();
+    } else {
+      console.log('listerning cant stop');
+    }
+  }
+
+  //TODO: maybe we can move this to a factory
+  private MessageHandler(message: string) {
+    if (this.commentHandler(['stop button'], false)) {
+      this.executeFunction('stop');
+    } else if (this.commentHandler(['stop'])) {
+      this.stopListerning();
+    } else if (this.commentHandler(['focus Field'])) {
+      let trimedMessage = message.trim();
+      let parsed = parseInt(trimedMessage, 10);
+      if (isNaN(parsed)) {
+        return;
+      }
+      this.focusout(parsed);
+    }
+  }
+
+  //TODO: maybe we can move this to a helper class
+  commentHandler(list: string[], proccessMessage = true): boolean {
+    let result = false;
+    list.forEach((commandName) => {
+      if (this.message.includes(commandName)) {
+        if (proccessMessage) {
+          this.message = this.message.replace(commandName, '');
+        }
+        result = true;
+      }
+    });
+    return result;
   }
 }

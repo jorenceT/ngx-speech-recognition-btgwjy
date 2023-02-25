@@ -1,6 +1,6 @@
 Last Command executed: {{ command }}
 <div class="app-speech-input">
-  <input #inputControl [type]="type" [value]="message" />
+  <input #control [type]="type" [value]="message" />
   <span
     [ngClass]="listerning ? 'app-speech-input-btn' : 'app-mute-input-btn'"
     (click)="listen()"

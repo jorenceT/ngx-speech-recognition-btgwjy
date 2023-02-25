@@ -18,8 +18,8 @@
     (functionExecuteCustom)="executeFunction($event)"
   ></button-speach-enabled>
 </div>
-
-<!-- functionExecuteCustom -->
-<!-- <button (click)="test()">click</button> -->
-
-<!-- <button (click)="stop()">stop</button> -->
+<span
+  [ngClass]="listerning ? 'app-speech-input-btn' : 'app-mute-input-btn'"
+  (click)="listen()"
+></span>
+<!-- <img src="https://cdn-icons-png.flaticon.com/512/59/59120.png" /> -->
