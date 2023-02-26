@@ -12,6 +12,7 @@ import {
 } from '../../../../../projects/ngx-speech-recognition/src/public_api';
 import { ControlerBase } from '../base/controler-base';
 import { commentHandler } from '../base/helper-class';
+import { controlType } from '../Interface/tab-data-model';
 
 @Component({
   selector: 'input-speach-enabled',
@@ -31,7 +32,6 @@ import { commentHandler } from '../base/helper-class';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputComponent extends ControlerBase {
-  public message = '';
   public command = 'command';
 
   constructor(
@@ -39,23 +39,24 @@ export class InputComponent extends ControlerBase {
     private refInt: ChangeDetectorRef
   ) {
     super(serviceInt, refInt);
+    this.controlType = controlType.input;
   }
 
-  protected messageHandler(message: string) {
-    if (commentHandler(['clear', 'delte', 'erase'], message)) {
+  // test() {
+  //   var val = this.globalMessageHandler('focus zero');
+  //   console.log(val);
+  //   var val = this.globalMessageHandler('focus one');
+  //   console.log(val);
+  // }
+
+  protected localCommandHandler(message: string) {
+    if (commentHandler(['clear', 'delete', 'erase'], message)) {
       this.message = '';
       this.command = 'clear';
-    } else if (
-      commentHandler(['tabout', 'next', 'tab', 'tap', 'out'], message)
-    ) {
-      stop();
-      this.focusoutCustom.emit(this.tabIndex);
-      this.command = 'tabout';
-    } else if (commentHandler(['stop', 'abort'], message)) {
-      stop();
-      this.command = 'stop';
     } else {
+      // this.indexOfCorrectData = this.currentDataIndex;
       this.message = message;
+      // console.log(this.indexOfCorrectData);
     }
   }
 }

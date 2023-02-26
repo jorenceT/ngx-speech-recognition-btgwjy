@@ -12,6 +12,7 @@ import {
 } from '../../../../../projects/ngx-speech-recognition/src/public_api';
 import { ControlerBase } from '../base/controler-base';
 import { commentHandler } from '../base/helper-class';
+import { controlType } from '../Interface/tab-data-model';
 
 @Component({
   selector: 'button-speach-enabled',
@@ -38,28 +39,20 @@ export class ButtonComponent extends ControlerBase {
     private refInt: ChangeDetectorRef
   ) {
     super(serviceInt, refInt);
+    this.controlType = controlType.button;
   }
 
-  test() {
-    this.controlRef.nativeElement.focus();
-  }
+  // test() {
+  //   this.globalMessageHandler('focus one');
+  // }
 
   executeFunction() {
     this.functionExecuteCustom.emit(this.name);
   }
 
-  protected messageHandler(message: string): void {
+  protected localCommandHandler(message: string): void {
     if (commentHandler(['Click'], message)) {
       this.functionExecuteCustom.emit(this.name);
-    }
-    if (commentHandler(['tabout', 'next', 'tab', 'tap'], message)) {
-      stop();
-      this.focusoutCustom.emit(this.tabIndex);
-      this.command = 'tabout';
-    }
-    if (commentHandler(['stop', 'abourt'], message)) {
-      stop();
-      this.command = 'stop';
     }
     this.ref.detectChanges();
   }

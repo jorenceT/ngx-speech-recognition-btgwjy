@@ -7,22 +7,26 @@ import {
   ViewChild,
 } from '@angular/core';
 import { SpeechRecognitionService } from '../../../../../projects/ngx-speech-recognition/src/public_api';
-import { TabData } from '../Interface/tab-data-model';
+import { controlType, TabData } from '../Interface/tab-data-model';
+import { commentHandler, GLOBAL_COMMAND } from './helper-class';
 
 export abstract class ControlerBase {
   public tabIndex = null;
   public name = '';
   public listerning = false;
   public type = 'text';
+  public message = '';
+  public previousFinalData = '';
+  // public currentDataIndex = 0;
+  // public indexOfCorrectData = 0;
+  public controlType = null;
 
   @Input() set focusin(data: TabData) {
-    console.log('came into input ' + data?.index);
     this.name = data.name;
     this.type = data.type;
     if (data.active) {
-      console.log('activated');
       this.controlRef.nativeElement.focus();
-      this.start('from input');
+      this.start();
     } else {
       if (this.listerning) {
         this.stop();
@@ -34,31 +38,39 @@ export abstract class ControlerBase {
 
   @ViewChild('control') controlRef: ElementRef;
 
-  @Output() focusoutCustom = new EventEmitter<string>();
+  @Output() focusoutCustom = new EventEmitter<number>();
   @Output() functionExecuteCustom = new EventEmitter<string>();
+  @Output() executeGlobalCommand = new EventEmitter<string>();
 
   constructor(
     protected service: SpeechRecognitionService,
     protected ref: ChangeDetectorRef
   ) {
     this.service.continuous = true;
-    // this.service.onstart = (e) => {
-    //   console.log('onstart');
-    // };
-    const timeout = setInterval(() => {
-      // location.reload();
-    }, 10000);
     this.service.onresult = (e) => {
-      clearTimeout(timeout);
       var message = e.results[e.results.length - 1].item(0).transcript;
-      this.messageHandler(message);
-      console.log(e);
+      this.messageHandler(message, e);
+      if (e.results[e.results.length - 1].isFinal) {
+        this.previousFinalData = this.message;
+      }
       this.ref.detectChanges();
     };
     this.service.onend = (e) => {
       this.listerning = false;
+      // this.previousFinalData = this.message;
       this.ref.detectChanges();
     };
+  }
+
+  clearGlobalCommandTextFromField(e, command) {
+    if (e.results.length >= 2) {
+      var splitedData = this.message.split(command);
+      this.message = splitedData[0];
+      // this.message = e.results[this.indexOfCorrectData].item(0).transcript;
+      this.message = this.message ? this.previousFinalData : this.message;
+    } else {
+      this.message = '';
+    }
   }
 
   listen() {
@@ -66,29 +78,66 @@ export abstract class ControlerBase {
     if (this.listerning) {
       this.stop();
     } else {
-      this.start('listern');
+      this.start();
     }
   }
 
-  start(calledFrom: string) {
+  start() {
     if (!this.listerning) {
       this.listerning = true;
-      console.log('listerning started ' + calledFrom);
       this.service.start();
-    } else {
-      console.log('listerning cant started ' + calledFrom);
     }
   }
 
   stop() {
     if (this.listerning) {
       this.listerning = false;
-      console.log('listerning stoped');
       this.service.abort();
-    } else {
-      console.log('listerning cant stop');
     }
   }
 
-  protected abstract messageHandler(message: string): void;
+  globalMessageHandler(message, e): boolean {
+    var result = false;
+    if (message) {
+      for (const key in GLOBAL_COMMAND) {
+        GLOBAL_COMMAND[key].forEach((value) => {
+          if (message.includes(value)) {
+            this.clearGlobalCommandTextFromField(e, value);
+            this.previousFinalData = this.message;
+            this.executeGlobalCommand.emit(message);
+            message = '';
+            result = true;
+          }
+        });
+      }
+    }
+    return result;
+  }
+
+  messageHandler(message: string, e) {
+    if (this.controlType === controlType.global) {
+      this.localCommandHandler(message);
+    } else if (
+      !this.globalMessageHandler(message, e) &&
+      !this.commonCommandHandler(message)
+    ) {
+      this.localCommandHandler(message);
+    }
+  }
+
+  commonCommandHandler(message: string): boolean {
+    if (commentHandler(['tabout', 'next', 'tab', 'out'], message)) {
+      stop();
+      this.focusoutCustom.emit(this.tabIndex + 1);
+      return true;
+    } else if (commentHandler(['stop', 'abort'], message)) {
+      stop();
+      return true;
+    } else if (commentHandler(['previous', 'shift tab'], message)) {
+      this.focusoutCustom.emit(this.tabIndex - 1);
+      return true;
+    }
+    return false;
+  }
+  protected abstract localCommandHandler(message: string): void;
 }

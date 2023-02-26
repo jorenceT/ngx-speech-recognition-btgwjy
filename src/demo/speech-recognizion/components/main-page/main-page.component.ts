@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  Output,
 } from '@angular/core';
 import {
   SpeechRecognitionLang,
@@ -9,8 +10,12 @@ import {
   SpeechRecognitionService,
 } from '../../../../../projects/ngx-speech-recognition/src/public_api';
 import { ControlerBase } from '../base/controler-base';
-import { commentHandler, parseNumericTextToNumber } from '../base/helper-class';
-import { inputType, TabData } from '../Interface/tab-data-model';
+import {
+  commentHandler,
+  GLOBAL_COMMAND,
+  parseNumericTextToNumber,
+} from '../base/helper-class';
+import { controlType, inputType, TabData } from '../Interface/tab-data-model';
 
 @Component({
   selector: 'main-page',
@@ -35,6 +40,7 @@ export class MainPageComponent extends ControlerBase {
     private refInit: ChangeDetectorRef
   ) {
     super(serviceInit, refInit);
+    this.controlType = controlType.global;
   }
   message = '';
   command = '';
@@ -47,7 +53,6 @@ export class MainPageComponent extends ControlerBase {
   currentActiveField = 0;
 
   focusout(index: number) {
-    index = index + 1;
     if (index < this.tabData.length) {
       this.focusInInput(index);
     } else {
@@ -79,13 +84,14 @@ export class MainPageComponent extends ControlerBase {
     };
   }
 
-  protected messageHandler(message: string) {
-    console.log(message);
-    if (commentHandler(['stop button'], message)) {
+  protected executingGlobalCommand(message) {
+    this.localCommandHandler(message);
+  }
+
+  protected localCommandHandler(message: string) {
+    if (commentHandler(GLOBAL_COMMAND.stopButton, message)) {
       this.executeFunction('stop');
-    } else if (commentHandler(['stop'], message)) {
-      this.stop();
-    } else if (commentHandler(['focus', 'select'], message)) {
+    } else if (commentHandler(GLOBAL_COMMAND.focus, message)) {
       let processedMessage: number = parseNumericTextToNumber(message);
       if (
         processedMessage != undefined &&
