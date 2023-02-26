@@ -7,7 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { SpeechRecognitionService } from '../../../../../projects/ngx-speech-recognition/src/public_api';
-import { TabData } from '../Interface/tab-data-model';
+import { controlType, TabData } from '../Interface/tab-data-model';
 import { commentHandler, GLOBAL_COMMAND } from './helper-class';
 
 export abstract class ControlerBase {
@@ -16,8 +16,10 @@ export abstract class ControlerBase {
   public listerning = false;
   public type = 'text';
   public message = '';
-  public currentDataIndex = 0;
-  public indexOfCorrectData = 0;
+  public previousFinalData = '';
+  // public currentDataIndex = 0;
+  // public indexOfCorrectData = 0;
+  public controlType = null;
 
   @Input() set focusin(data: TabData) {
     this.name = data.name;
@@ -46,20 +48,26 @@ export abstract class ControlerBase {
   ) {
     this.service.continuous = true;
     this.service.onresult = (e) => {
-      this.currentDataIndex = e.results.length - 1;
-      var message = e.results[this.currentDataIndex].item(0).transcript;
+      var message = e.results[e.results.length - 1].item(0).transcript;
       this.messageHandler(message, e);
+      if (e.results[e.results.length - 1].isFinal) {
+        this.previousFinalData = this.message;
+      }
       this.ref.detectChanges();
     };
     this.service.onend = (e) => {
       this.listerning = false;
+      // this.previousFinalData = this.message;
       this.ref.detectChanges();
     };
   }
 
-  clearGlobalCommandTextFromField(e) {
+  clearGlobalCommandTextFromField(e, command) {
     if (e.results.length >= 2) {
-      this.message = e.results[this.indexOfCorrectData].item(0).transcript;
+      var splitedData = this.message.split(command);
+      this.message = splitedData[0];
+      // this.message = e.results[this.indexOfCorrectData].item(0).transcript;
+      this.message = this.message ? this.previousFinalData : this.message;
     } else {
       this.message = '';
     }
@@ -94,8 +102,10 @@ export abstract class ControlerBase {
       for (const key in GLOBAL_COMMAND) {
         GLOBAL_COMMAND[key].forEach((value) => {
           if (message.includes(value)) {
-            this.clearGlobalCommandTextFromField(e);
+            this.clearGlobalCommandTextFromField(e, value);
+            this.previousFinalData = this.message;
             this.executeGlobalCommand.emit(message);
+            message = '';
             result = true;
           }
         });
@@ -103,15 +113,18 @@ export abstract class ControlerBase {
     }
     return result;
   }
+
   messageHandler(message: string, e) {
-    console.log(this.globalMessageHandler(message, e) + message);
-    if (
+    if (this.controlType === controlType.global) {
+      this.localCommandHandler(message);
+    } else if (
       !this.globalMessageHandler(message, e) &&
       !this.commonCommandHandler(message)
     ) {
       this.localCommandHandler(message);
     }
   }
+
   commonCommandHandler(message: string): boolean {
     if (commentHandler(['tabout', 'next', 'tab', 'out'], message)) {
       stop();

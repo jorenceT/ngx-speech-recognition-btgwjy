@@ -10,3 +10,9 @@ export enum inputType {
   number = 'numebr',
   button = 'button',
 }
+
+export enum controlType {
+  input = 1,
+  button = 2,
+  global = 3,
+}

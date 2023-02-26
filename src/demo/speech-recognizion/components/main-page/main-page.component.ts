@@ -15,7 +15,7 @@ import {
   GLOBAL_COMMAND,
   parseNumericTextToNumber,
 } from '../base/helper-class';
-import { inputType, TabData } from '../Interface/tab-data-model';
+import { controlType, inputType, TabData } from '../Interface/tab-data-model';
 
 @Component({
   selector: 'main-page',
@@ -40,6 +40,7 @@ export class MainPageComponent extends ControlerBase {
     private refInit: ChangeDetectorRef
   ) {
     super(serviceInit, refInit);
+    this.controlType = controlType.global;
   }
   message = '';
   command = '';

@@ -12,6 +12,7 @@ import {
 } from '../../../../../projects/ngx-speech-recognition/src/public_api';
 import { ControlerBase } from '../base/controler-base';
 import { commentHandler } from '../base/helper-class';
+import { controlType } from '../Interface/tab-data-model';
 
 @Component({
   selector: 'input-speach-enabled',
@@ -38,6 +39,7 @@ export class InputComponent extends ControlerBase {
     private refInt: ChangeDetectorRef
   ) {
     super(serviceInt, refInt);
+    this.controlType = controlType.input;
   }
 
   // test() {
@@ -52,9 +54,9 @@ export class InputComponent extends ControlerBase {
       this.message = '';
       this.command = 'clear';
     } else {
-      this.indexOfCorrectData = this.currentDataIndex;
+      // this.indexOfCorrectData = this.currentDataIndex;
       this.message = message;
-      console.log(this.indexOfCorrectData);
+      // console.log(this.indexOfCorrectData);
     }
   }
 }
