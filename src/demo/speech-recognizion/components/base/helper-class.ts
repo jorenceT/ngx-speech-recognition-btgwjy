@@ -47,7 +47,7 @@ function convertNumberText(message: string) {
 }
 
 export function wordCorrection(word) {
-  return WORD_CORRECTION_LIST[word] ?? word;
+  return WORD_CORRECTION_LIST[word] ? WORD_CORRECTION_LIST[word] : word;
 }
 
 const WORD_CORRECTION_LIST = {
