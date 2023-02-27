@@ -6,7 +6,7 @@ import { DemoComponent } from './demo.component';
 
 import { SpeechRecognizionSubModule } from '../demo/speech-recognizion';
 import { SpeechRecognitionModule } from '../../projects/ngx-speech-recognition/src/public_api';
-import { MainPageComponent } from '../demo/speech-recognizion/components/main-page/main-page.component.ts';
+import { MainPageComponent } from '../demo/speech-recognizion/components/main-page/main-page.component';
 
 @NgModule({
   declarations: [DemoComponent, MainPageComponent],
