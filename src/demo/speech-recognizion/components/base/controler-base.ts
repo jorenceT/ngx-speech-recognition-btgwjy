@@ -74,7 +74,7 @@ export abstract class ControlerBase {
   }
 
   listen() {
-    this.controlRef?.nativeElement?.focus();
+    this.controlRef.nativeElement.focus();
     if (this.listerning) {
       this.stop();
     } else {
