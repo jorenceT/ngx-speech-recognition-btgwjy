@@ -14,8 +14,16 @@
 </div>
 
 <div style="margin-top: 20px">
-  <button-speach-enabled
+  <dropdown
     [focusin]="tabData[2]"
+    (focusoutCustom)="focusout($event)"
+    (executeGlobalCommand)="executingGlobalCommand($event)"
+  ></dropdown>
+</div>
+
+<div style="margin-top: 20px">
+  <button-speach-enabled
+    [focusin]="tabData[3]"
     (focusoutCustom)="focusout($event)"
     (functionExecuteCustom)="executeFunction($event)"
     (executeGlobalCommand)="executingGlobalCommand($event)"

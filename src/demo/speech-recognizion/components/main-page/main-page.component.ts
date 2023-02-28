@@ -47,7 +47,8 @@ export class MainPageComponent extends ControlerBase {
   tabData: TabData[] = [
     { index: 0, active: false, type: inputType.text },
     { index: 1, active: false, type: inputType.text },
-    { index: 2, active: false, type: inputType.button, name: 'stop' },
+    { index: 2, active: false, type: inputType.dropdown },
+    { index: 3, active: false, type: inputType.button, name: 'stop' },
   ];
 
   currentActiveField = 0;

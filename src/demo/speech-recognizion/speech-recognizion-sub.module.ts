@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { InputComponent, ButtonComponent } from './components';
+import { InputComponent, ButtonComponent, DropDownComponent } from './components';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  imports: [CommonModule],
-  declarations: [InputComponent, ButtonComponent],
-  exports: [InputComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule],
+  declarations: [InputComponent, ButtonComponent, DropDownComponent],
+  exports: [InputComponent, ButtonComponent, DropDownComponent],
 })
-export class SpeechRecognizionSubModule {}
+export class SpeechRecognizionSubModule { }

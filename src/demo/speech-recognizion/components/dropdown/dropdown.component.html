@@ -1,0 +1,10 @@
+Voice received : {{speechReceived}}
+<div class="app-speech-input">
+    <select #control>
+        <option value=""></option>
+        <option *ngFor="let item of demoItem" [value]="item.value" [selected]="selectedOption===item.value">
+            {{item.display}}
+        </option>
+    </select>
+    <span [ngClass]="listerning ? 'app-speech-input-btn' : 'app-mute-input-btn'" (click)="listen()"></span>
+</div>
